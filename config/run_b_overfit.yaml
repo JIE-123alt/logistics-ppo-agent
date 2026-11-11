@@ -1,22 +1,7 @@
-# Run B: made to OVERFIT on purpose (only 3 fixed train scenarios, big network, no exploration bonus).
+# Run B: made to OVERFIT on purpose. Same as the base settings except for the lines below.
 run_name: run_b_overfit
-env_config: config/env.yaml
-seeds: [0]
 train:
-  total_timesteps: 500000
-  quick_timesteps: 20480
-  n_envs: 8
-  learning_rate: 0.0003
-  lr_schedule: linear
-  n_steps: 256
-  batch_size: 64
   n_epochs: 20              # more passes over the same data -> memorises faster
-  gamma: 0.99
-  gae_lambda: 0.95
-  clip_range: 0.2
   ent_coef: 0.0             # no exploration bonus
   net_arch: [256, 256]      # big network can memorise 3 scenarios
   train_scenarios: first_3  # the agent only ever sees 3 fixed scenarios
-eval:
-  every_steps: 10000
-  quick_every_steps: 4096

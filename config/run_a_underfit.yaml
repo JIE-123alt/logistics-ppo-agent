@@ -1,22 +1,9 @@
-# Run A: made to UNDERFIT on purpose (tiny learning rate, tiny network, very short training).
+# Run A: made to UNDERFIT on purpose. Same as the base settings except for the lines below.
 run_name: run_a_underfit
-env_config: config/env.yaml
-seeds: [0]
 train:
-  total_timesteps: 20000
-  quick_timesteps: 20480
-  n_envs: 8
+  total_timesteps: 20000    # very short training
   learning_rate: 0.000001   # 1e-6: weights barely move
   lr_schedule: constant
-  n_steps: 256
-  batch_size: 64
-  n_epochs: 10
-  gamma: 0.99
-  gae_lambda: 0.95
-  clip_range: 0.2
-  ent_coef: 0.01
   net_arch: [16]            # one tiny hidden layer
-  train_scenarios: all
 eval:
   every_steps: 2000
-  quick_every_steps: 4096
