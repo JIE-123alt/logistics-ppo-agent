@@ -64,7 +64,7 @@ class SupplyChainEnv(gym.Env):
         self.fail_streak = 0                                  # failed orders in a row
         self.last_failed = 0
         self.stats = dict(cost=0.0, demand=0.0, sold=0.0, stockout_weeks=0, fallback=0,
-                          loop_trap=0, orders=0, failed=0, overflow=0.0)
+                          loop_trap=0, failed=0)
         return self._obs(), {}
 
     def _draw_randomness(self):
@@ -131,7 +131,6 @@ class SupplyChainEnv(gym.Env):
         if qty > 0:                                           # accepted order (or fallback order)
             self._place_order(t, supplier, qty)
             fixed = self.cfg["fixed_order_cost"]
-            self.stats["orders"] += 1
             if not info["fallback_used"]:
                 self.fail_streak = 0
         self.last_failed = int(failed)
@@ -177,7 +176,6 @@ class SupplyChainEnv(gym.Env):
         got = sum(q for _, q, _ in arrived)
         stored = min(got, self.cfg["inventory_cap"] - self.inventory)
         self.inventory += stored
-        self.stats["overflow"] += got - stored
         return sum(q * self.suppliers[s]["unit_cost"] for _, q, s in arrived)
 
     def _fallback_qty(self):

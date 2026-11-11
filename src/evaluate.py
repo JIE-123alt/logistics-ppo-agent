@@ -1,9 +1,3 @@
-"""ONE evaluate function used for PPO, the baselines, train, validation and test.
-
-A policy is anything you can call as  policy(obs) -> action  (an int from 0 to 7).
-The same scenario seeds and the same episode seeds are used for every policy, so the
-comparison is fair (every policy sees the same demand and the same luck).
-"""
 import json
 import logging
 from datetime import datetime
@@ -35,24 +29,12 @@ def evaluate(policy, cfg, scenario_seeds, episodes_per_scenario=5, ep_offset=0):
     return pd.DataFrame(rows)
 
 
-def summarise(df):
-    """Average the metrics of the episodes (plus the standard deviation of total cost)."""
-    out = df.drop(columns=["scenario", "episode"]).mean().to_dict()
-    out["total_cost_std"] = float(df["total_cost"].std())
-    return out
-
-
 def ppo_policy(model):
     """Wrap a Stable-Baselines3 model as a deterministic policy."""
     def policy(obs):
         action, _ = model.predict(obs, deterministic=True)
         return int(action)
     return policy
-
-
-def cost_of(policy, cfg, seeds, episodes_per_scenario=5):
-    """Mean total cost of a policy on a list of scenarios."""
-    return float(evaluate(policy, cfg, seeds, episodes_per_scenario)["total_cost"].mean())
 
 
 def use_test_set(results_dir, who):
