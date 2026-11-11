@@ -1,11 +1,13 @@
 """
-Run:  python -m src.train --config config/run_c_final.yaml --seed 0 [--quick]
+Run:  python -m src.train --run run_c_final --seed 0 [--quick]
+The speed test at the bottom of this file sets how many steps the full pipeline can afford.
 Every 'eval every' steps a callback measures the policy on train and validation scenarios with the
 SAME evaluate() function used at the end, saves the best checkpoint (lowest validation cost) and
 writes eval_log.csv. TensorBoard logs and SB3's progress.csv go to runs/<run_name>_seed<N>/.
 """
 import argparse
 import shutil
+import time
 
 import pandas as pd
 import torch
@@ -19,7 +21,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 
 from src.env import SupplyChainEnv
 from src.evaluate import evaluate, ppo_policy
-from src.utils import get_dirs, get_splits, library_versions, load_yaml, save_json
+from src.utils import RUN_NAMES, get_dirs, get_splits, library_versions, load_run, load_yaml, save_json
 
 CURVE_SCENARIOS = 20          # how many scenarios to use for the curves during training
 
@@ -107,12 +109,50 @@ def train_one(run_cfg, cfg, seed, quick, timesteps_scale=1.0):
     return name
 
 
+# ---------- speed test: how many training steps per second does THIS computer do? ----------
+# It times a short run with the base settings (Run C) and with the big-network settings (Run B), then
+# works out a scale factor (0.x = fewer steps, up to 4 = more steps) so the whole pipeline fits the budget.
+
+TEST_STEPS = 8192                       # 4 PPO updates: long enough to time, short enough to wait
+
+
+def steps_per_second(run_cfg, cfg, results_dir):
+    torch.set_num_threads(1)
+    pool = training_pool(run_cfg, get_splits(cfg))
+    model = make_model(run_cfg, cfg, pool, seed=0, run_dir=results_dir / "speed_tmp")
+    start = time.time()
+    model.learn(total_timesteps=TEST_STEPS)
+    return TEST_STEPS / (time.time() - start)
+
+
+def speed_test(budget_minutes):
+    cfg = load_yaml("config/env.yaml")
+    results_dir, _ = get_dirs(False)
+    runs = {name: load_run(name) for name in RUN_NAMES}
+    fps_base = steps_per_second(runs["run_c_final"], cfg, results_dir)
+    fps_big = steps_per_second(runs["run_b_overfit"], cfg, results_dir)
+
+    # planned steps: A once, B once, C three times
+    seconds_a = runs["run_a_underfit"]["train"]["total_timesteps"] / fps_base
+    seconds_b = runs["run_b_overfit"]["train"]["total_timesteps"] / fps_big
+    seconds_c = 3 * runs["run_c_final"]["train"]["total_timesteps"] / fps_base
+    full_seconds = (seconds_a + seconds_b + seconds_c) * 1.15      # +15% for validation checks
+    scale = min(4.0, budget_minutes * 60 * 0.85 / full_seconds)    # keep 15% for everything else (max 4x)
+    info = {"fps_base_settings": round(fps_base), "fps_big_network_settings": round(fps_big),
+            "budget_minutes": budget_minutes,
+            "estimated_minutes_at_full_timesteps": round(full_seconds / 60, 1),
+            "timesteps_scale": round(scale, 3)}
+    save_json(info, results_dir / "speed_test.json")
+    print("Speed test:", info)
+    return scale
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--config", required=True)
+    parser.add_argument("--run", required=True, help="run name, e.g. run_c_final")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--quick", action="store_true")
     parser.add_argument("--timesteps-scale", type=float, default=1.0)
     args = parser.parse_args()
-    train_one(load_yaml(args.config), load_yaml("config/env.yaml"), args.seed, args.quick,
+    train_one(load_run(args.run), load_yaml("config/env.yaml"), args.seed, args.quick,
               args.timesteps_scale)
