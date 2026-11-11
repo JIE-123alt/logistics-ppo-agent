@@ -17,6 +17,20 @@ def load_yaml(path):
     return yaml.safe_load(path.read_text(encoding="utf-8"))
 
 
+RUN_NAMES = ["run_a_underfit", "run_b_overfit", "run_c_final"]
+
+
+def load_run(name):
+    """Read config/<name>.yaml on top of config/base_ppo.yaml (a run file lists only what differs)."""
+    cfg = load_yaml("config/base_ppo.yaml")
+    for key, value in load_yaml(f"config/{name}.yaml").items():
+        if isinstance(value, dict):
+            cfg.setdefault(key, {}).update(value)
+        else:
+            cfg[key] = value
+    return cfg
+
+
 def save_json(obj, path):
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(json.dumps(obj, indent=2), encoding="utf-8")

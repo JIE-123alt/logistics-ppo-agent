@@ -2,9 +2,8 @@
 
 The final model (chosen on validation) is compared with the baselines on the VALIDATION
 scenarios (so the test set stays untouched). Baselines are NOT re-tuned: same settings as before.
-Run:  python -m src.stress_test [--quick]
+Run:  python run_all.py --only stress [--quick]
 """
-import argparse
 
 import pandas as pd
 from stable_baselines3 import PPO
@@ -41,9 +40,3 @@ def run(quick):
     out = pd.DataFrame(rows)
     out.to_csv(results_dir / "stress_results.csv", index=False)
     print(out.round(2).to_string(index=False))
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--quick", action="store_true")
-    run(parser.parse_args().quick)
