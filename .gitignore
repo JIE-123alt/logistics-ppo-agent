@@ -1,6 +1,21 @@
-﻿.venv/
+﻿# Python
 __pycache__/
 *.pyc
-runs/
-data/raw/
-.vscode/*.log
+.venv/
+.pytest_cache/
+# Big or private files
+data/raw/*.xlsx
+data/raw/*.csv
+runs/*
+!runs/.gitkeep
+runs_quick/
+results_quick/
+*.zip
+# Keep these folders in git
+!data/raw/.gitkeep
+!results/.gitkeep
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/launch.json
