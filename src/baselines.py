@@ -1,9 +1,8 @@
 """Two baselines: a random policy and a base-stock rule tuned on the TRAIN scenarios only.
 
 Both see only what the PPO agent sees (the normalised observation), so the comparison is fair.
-Run:  python -m src.baselines            (tunes and saves results/baseline_params.json)
+Run:  python run_all.py --only baselines [--quick]
 """
-import argparse
 import itertools
 
 import numpy as np
@@ -74,9 +73,3 @@ def run(quick):
     save_json(best, results_dir / "baseline_params.json")
     save_json(table, results_dir / "baseline_tuning_table.json")
     print("Best base-stock parameters (tuned on train only):", best)
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--quick", action="store_true")
-    run(parser.parse_args().quick)
