@@ -1,7 +1,11 @@
 import copy
 import json
+import os
 import platform
+import shutil
+import stat
 import sys
+import time
 from pathlib import Path
 
 import yaml
@@ -85,3 +89,33 @@ def library_versions():
         "stable_baselines3": stable_baselines3.__version__,
         "gymnasium": gymnasium.__version__,
     }
+
+
+def _clear_readonly(func, path, _error):
+    """Called by rmtree when a delete fails: clear the read-only flag, then try again."""
+    os.chmod(path, stat.S_IWRITE)
+    func(path)
+
+
+def delete_folder(folder):
+    """Delete a folder on Windows, even if some files inside are marked read-only.
+
+    Use it for ONE run folder only (for example runs/run_c_final), never for the
+    whole runs/ or results/ folder.
+    """
+    folder = Path(folder)
+    if not folder.exists():
+        return
+    for _attempt in range(3):
+        try:
+            if sys.version_info >= (3, 12):
+                shutil.rmtree(folder, onexc=_clear_readonly)    # Python 3.12 and newer
+            else:
+                shutil.rmtree(folder, onerror=_clear_readonly)  # older Python
+            return
+        except PermissionError:
+            time.sleep(1)  # another program may still hold a file, so wait and retry
+    raise PermissionError(
+        f"Cannot delete {folder}. Close TensorBoard and any File Explorer window "
+        "that shows this folder, then run again."
+    )

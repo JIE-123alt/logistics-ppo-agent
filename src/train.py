@@ -21,7 +21,8 @@ from stable_baselines3.common.vec_env import DummyVecEnv
 
 from src.env import SupplyChainEnv
 from src.evaluate import evaluate, ppo_policy
-from src.utils import RUN_NAMES, get_dirs, get_splits, library_versions, load_run, load_yaml, save_json
+from src.utils import (RUN_NAMES, delete_folder, get_dirs, get_splits, library_versions, load_run,
+                       load_yaml, save_json)
 
 CURVE_SCENARIOS = 20          # how many scenarios to use for the curves during training
 
@@ -82,12 +83,17 @@ def make_model(run_cfg, cfg, pool, seed, run_dir):
     return model
 
 
+def close_model(model):
+    """Release the log files and the environments. Windows cannot delete files that are still open."""
+    model.logger.close()
+    model.get_env().close()
+
+
 def train_one(run_cfg, cfg, seed, quick, timesteps_scale=1.0):
     results_dir, runs_dir = get_dirs(quick)
     name = f"{run_cfg['run_name']}_seed{seed}"
     run_dir = runs_dir / name
-    if run_dir.exists():
-        shutil.rmtree(run_dir)
+    delete_folder(run_dir)                                    # Windows-safe: also removes read-only files
     run_dir.mkdir(parents=True)
     torch.set_num_threads(1)                                  # tiny network: 1 thread is fastest
     set_random_seed(seed)
@@ -101,6 +107,7 @@ def train_one(run_cfg, cfg, seed, quick, timesteps_scale=1.0):
     callback = ValidationCallback(cfg, pool, splits["val"], every, episodes, run_dir)
     model.learn(total_timesteps=steps, callback=callback)
     model.save(run_dir / "final_model")
+    close_model(model)                                        # files are free again (needed on Windows)
 
     save_json({"run": name, "seed": seed, "timesteps": steps, "quick": quick,
                "versions": library_versions(), "config": run_cfg}, run_dir / "run_info.json")
@@ -122,7 +129,9 @@ def steps_per_second(run_cfg, cfg, results_dir):
     model = make_model(run_cfg, cfg, pool, seed=0, run_dir=results_dir / "speed_tmp")
     start = time.time()
     model.learn(total_timesteps=TEST_STEPS)
-    return TEST_STEPS / (time.time() - start)
+    speed = TEST_STEPS / (time.time() - start)
+    close_model(model)
+    return speed
 
 
 def speed_test(budget_minutes):
