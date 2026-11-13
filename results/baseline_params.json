@@ -1,0 +1,5 @@
+{
+  "cover_weeks": 3,
+  "threshold": 1.01,
+  "tuned_on": "50 train scenarios"
+}
