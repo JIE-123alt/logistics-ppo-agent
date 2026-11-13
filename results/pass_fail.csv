@@ -1,0 +1,7 @@
+group,criterion,measured,limit,result
+(a) not underfit,validation cost better than random by,24.2%,>= 20%,PASS
+(a) not underfit,learning curve flat: biggest gain in last 20% of training,4.5%,<= 2%,FAIL
+(b) not overfit,train vs validation cost gap (val - train) / train,5.6%,<= 10%,PASS
+(b) not overfit,"test cost vs validation cost, abs(test - val) / val",3.9%,<= 10%,PASS
+(c) stable,"3 seeds, validation cost: (max - min) / mean",11.2%,<= 10%,FAIL
+(c) stable,"3 seeds, test cost: (max - min) / mean",12.7%,<= 10%,FAIL

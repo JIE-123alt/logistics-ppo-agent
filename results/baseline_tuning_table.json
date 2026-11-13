@@ -1,0 +1,212 @@
+[
+  {
+    "cover_weeks": 1,
+    "threshold": 0.0,
+    "train_cost": 20485.77
+  },
+  {
+    "cover_weeks": 1,
+    "threshold": 0.4,
+    "train_cost": 20369.17
+  },
+  {
+    "cover_weeks": 1,
+    "threshold": 0.5,
+    "train_cost": 20326.9
+  },
+  {
+    "cover_weeks": 1,
+    "threshold": 0.6,
+    "train_cost": 20287.94
+  },
+  {
+    "cover_weeks": 1,
+    "threshold": 0.7,
+    "train_cost": 20134.27
+  },
+  {
+    "cover_weeks": 1,
+    "threshold": 0.8,
+    "train_cost": 19646.97
+  },
+  {
+    "cover_weeks": 1,
+    "threshold": 1.01,
+    "train_cost": 18630.26
+  },
+  {
+    "cover_weeks": 2,
+    "threshold": 0.0,
+    "train_cost": 17279.3
+  },
+  {
+    "cover_weeks": 2,
+    "threshold": 0.4,
+    "train_cost": 17051.52
+  },
+  {
+    "cover_weeks": 2,
+    "threshold": 0.5,
+    "train_cost": 16990.4
+  },
+  {
+    "cover_weeks": 2,
+    "threshold": 0.6,
+    "train_cost": 16924.37
+  },
+  {
+    "cover_weeks": 2,
+    "threshold": 0.7,
+    "train_cost": 16741.11
+  },
+  {
+    "cover_weeks": 2,
+    "threshold": 0.8,
+    "train_cost": 16067.03
+  },
+  {
+    "cover_weeks": 2,
+    "threshold": 1.01,
+    "train_cost": 14641.51
+  },
+  {
+    "cover_weeks": 3,
+    "threshold": 0.0,
+    "train_cost": 14921.12
+  },
+  {
+    "cover_weeks": 3,
+    "threshold": 0.4,
+    "train_cost": 14722.11
+  },
+  {
+    "cover_weeks": 3,
+    "threshold": 0.5,
+    "train_cost": 14649.8
+  },
+  {
+    "cover_weeks": 3,
+    "threshold": 0.6,
+    "train_cost": 14609.94
+  },
+  {
+    "cover_weeks": 3,
+    "threshold": 0.7,
+    "train_cost": 14463.52
+  },
+  {
+    "cover_weeks": 3,
+    "threshold": 0.8,
+    "train_cost": 14088.7
+  },
+  {
+    "cover_weeks": 3,
+    "threshold": 1.01,
+    "train_cost": 13351.8
+  },
+  {
+    "cover_weeks": 4,
+    "threshold": 0.0,
+    "train_cost": 13640.86
+  },
+  {
+    "cover_weeks": 4,
+    "threshold": 0.4,
+    "train_cost": 13501.43
+  },
+  {
+    "cover_weeks": 4,
+    "threshold": 0.5,
+    "train_cost": 13458.48
+  },
+  {
+    "cover_weeks": 4,
+    "threshold": 0.6,
+    "train_cost": 13492.46
+  },
+  {
+    "cover_weeks": 4,
+    "threshold": 0.7,
+    "train_cost": 13549.14
+  },
+  {
+    "cover_weeks": 4,
+    "threshold": 0.8,
+    "train_cost": 14093.3
+  },
+  {
+    "cover_weeks": 4,
+    "threshold": 1.01,
+    "train_cost": 15598.64
+  },
+  {
+    "cover_weeks": 5,
+    "threshold": 0.0,
+    "train_cost": 13521.23
+  },
+  {
+    "cover_weeks": 5,
+    "threshold": 0.4,
+    "train_cost": 13613.21
+  },
+  {
+    "cover_weeks": 5,
+    "threshold": 0.5,
+    "train_cost": 13654.83
+  },
+  {
+    "cover_weeks": 5,
+    "threshold": 0.6,
+    "train_cost": 13797.84
+  },
+  {
+    "cover_weeks": 5,
+    "threshold": 0.7,
+    "train_cost": 14358.3
+  },
+  {
+    "cover_weeks": 5,
+    "threshold": 0.8,
+    "train_cost": 16116.93
+  },
+  {
+    "cover_weeks": 5,
+    "threshold": 1.01,
+    "train_cost": 19878.82
+  },
+  {
+    "cover_weeks": 6,
+    "threshold": 0.0,
+    "train_cost": 15058.73
+  },
+  {
+    "cover_weeks": 6,
+    "threshold": 0.4,
+    "train_cost": 15462.74
+  },
+  {
+    "cover_weeks": 6,
+    "threshold": 0.5,
+    "train_cost": 15577.71
+  },
+  {
+    "cover_weeks": 6,
+    "threshold": 0.6,
+    "train_cost": 15768.64
+  },
+  {
+    "cover_weeks": 6,
+    "threshold": 0.7,
+    "train_cost": 16668.67
+  },
+  {
+    "cover_weeks": 6,
+    "threshold": 0.8,
+    "train_cost": 19633.26
+  },
+  {
+    "cover_weeks": 6,
+    "threshold": 1.01,
+    "train_cost": 24543.64
+  }
+]

@@ -1,0 +1,7 @@
+{
+  "fps_base_settings": 1553,
+  "fps_big_network_settings": 429,
+  "budget_minutes": 75,
+  "estimated_minutes_at_full_timesteps": 41.1,
+  "timesteps_scale": 1.552
+}
