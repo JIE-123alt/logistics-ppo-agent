@@ -1,4 +1,5 @@
-"""
+"""SupplyChainEnv: a weekly ordering game for ONE product (Gymnasium environment).
+
 Each week the agent picks ONE action from 8:  action = supplier * 4 + size_index
   supplier: 0 = A (cheap, slow, unreliable), 1 = B (dearer, fast, reliable)
   size_index: 0..3 -> the 4 order sizes in config/env.yaml   (action 0 and 4 both mean "order nothing")
@@ -33,6 +34,14 @@ def unpack_obs(obs, cfg):
         "forecast": obs[3] * cfg["normalise"]["forecast_scale"],
         "rel_signal": obs[4], "week": obs[5] * cfg["weeks"], "last_failed": obs[6],
     }
+
+
+def make_obs(cfg, stock, transit_a, transit_b, forecast, rel_signal, week, last_failed=0):
+    """The other way round: real numbers -> the 7 normalised numbers the agent was trained on."""
+    cap = cfg["inventory_cap"]
+    obs = [stock / cap, transit_a / cap, transit_b / cap, forecast / cfg["normalise"]["forecast_scale"],
+           rel_signal, week / cfg["weeks"], float(last_failed)]
+    return np.clip(np.array(obs, dtype=np.float32), 0.0, cfg["normalise"]["obs_max"])
 
 
 class SupplyChainEnv(gym.Env):
@@ -99,11 +108,8 @@ class SupplyChainEnv(gym.Env):
         return sum(q for _, q, s in self.pipeline if s == supplier)
 
     def _obs(self):
-        cap = self.cfg["inventory_cap"]
-        obs = [self.inventory / cap, self._transit(0) / cap, self._transit(1) / cap,
-               self._forecast() / self.cfg["normalise"]["forecast_scale"],
-               self._signal(), self.t / self.weeks, float(self.last_failed)]
-        return np.clip(np.array(obs, dtype=np.float32), 0.0, self.obs_max)
+        return make_obs(self.cfg, self.inventory, self._transit(0), self._transit(1), self._forecast(),
+                        self._signal(), self.t, self.last_failed)
 
     # ---------- one week ----------
     def step(self, action):

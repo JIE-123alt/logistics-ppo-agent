@@ -13,6 +13,9 @@ Run from the project folder. Examples:
   python prepare_real_datasets.py --input data/raw/sales.csv --date-col date \
       --qty-col sales --group-col item
 
+  # UCI Online Retail II (online_retail_II.xlsx: two yearly sheets, both are read), all products added up
+  python prepare_real_datasets.py --input data/raw/online_retail_II.xlsx --date-col InvoiceDate --qty-col Quantity
+
 Output: data/processed/real_dataset.csv with two columns (week_ending, demand).
 .csv and .xlsx are both accepted (.xlsx needs the openpyxl package).
 
@@ -27,15 +30,37 @@ import pandas as pd
 
 
 def read_table(path):
+    """Read a .csv, or every sheet of an .xlsx (the UCI file has one sheet per year)."""
     path = Path(path)
     if not path.exists():
         raise SystemExit(f"File not found: {path}")
     if path.suffix.lower() in (".xlsx", ".xls"):
-        return pd.read_excel(path)
+        frames = []
+        for i, (name, sheet) in enumerate(pd.read_excel(path, sheet_name=None).items()):
+            print(f"Sheet '{name}': {len(sheet)} rows")
+            frames.append(sheet.assign(_sheet=i))
+        return pd.concat(frames, ignore_index=True)
     try:
-        return pd.read_csv(path)
+        df = pd.read_csv(path)
     except UnicodeDecodeError:                       # many retail files are not UTF-8
-        return pd.read_csv(path, encoding="latin-1")
+        df = pd.read_csv(path, encoding="latin-1")
+    return df.assign(_sheet=0)
+
+
+def drop_overlapping_sheets(df, date_col):
+    """If a later sheet repeats days already covered by an earlier sheet, keep the earlier rows only."""
+    if df["_sheet"].nunique() < 2:
+        return df
+    keep, latest = pd.Series(True, index=df.index), None
+    for i in sorted(df["_sheet"].unique()):
+        in_sheet = df["_sheet"] == i
+        if latest is not None:
+            keep &= ~(in_sheet & (df[date_col] <= latest))
+        sheet_max = df.loc[in_sheet & keep, date_col].max()
+        latest = sheet_max if latest is None else max(latest, sheet_max)
+    if (~keep).any():
+        print(f"Sheets overlap in time: removed {(~keep).sum()} repeated rows so no day is counted twice")
+    return df[keep]
 
 
 def check_columns(df, names):
@@ -45,11 +70,15 @@ def check_columns(df, names):
 
 
 def pick_busiest_group(df, date_col, group_col):
-    """The group (e.g. product) that sold in the most different weeks, ties broken by volume."""
+    """The group (e.g. product) that sold in the most different weeks, ties broken by volume.
+    Codes that do not start with a digit (POST, DOT, M, ...) are services, not products, so they are skipped."""
     weeks = df[date_col].dt.to_period("W")
     active_weeks = df.assign(_w=weeks).groupby(group_col)["_w"].nunique()
     volume = df.groupby(group_col)["_qty"].sum()
     table = pd.DataFrame({"weeks": active_weeks, "volume": volume})
+    product_like = table.index.astype(str).str[:1].str.isdigit()
+    if product_like.any():
+        table = table[product_like]
     return table.sort_values(["weeks", "volume"], ascending=False).index[0]
 
 
@@ -71,6 +100,7 @@ def main():
     df["_qty"] = pd.to_numeric(df[args.qty_col], errors="coerce")
     before = len(df)
     df = df.dropna(subset=[args.date_col, "_qty"])
+    df = drop_overlapping_sheets(df, args.date_col)
     df = df[df["_qty"] > 0]                           # returns / corrections are not demand
     print(f"Rows read: {before}, rows kept (valid date, quantity > 0): {len(df)}")
 
@@ -99,6 +129,8 @@ def main():
     print(f"  from {out['week_ending'].iloc[0].date()} to {out['week_ending'].iloc[-1].date()}")
     print(f"  weekly demand: mean {out['demand'].mean():.1f}, min {out['demand'].min():.0f}, "
           f"max {out['demand'].max():.0f}, weeks with zero sales {zero_share:.0%}")
+    peak = out["demand"].max() / max(out["demand"].mean(), 1e-9)
+    print(f"  busiest week = {peak:.1f} x the average week (training scenarios peak at about 1.1 to 1.4 x)")
     if len(out) < 53:
         print("  WARNING: demo.py needs at least 53 weeks (52 + 1 for the forecast). Use a longer "
               "period, or add up more products (leave out --group-col).")

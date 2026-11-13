@@ -2,8 +2,8 @@
                             python run_all.py           (about 60-90 minutes, set by --budget-minutes)
                             python run_all.py --only plots   (one stage on its own)
 
-Stages, in order: speed (full run only), baselines, train (runs A, B, C), eval, stress, plots, cards, docs.
-The last three only make reports (src/plots.py, plan_cards.py, make_docs.py); they are skipped if those files are missing.
+Stages, in order: speed (full run only), baselines, train (runs A, B, C), eval, stress, decisions, plots, cards, docs.
+The last three (plots, cards, docs) only make reports (src/plots.py, plan_cards.py, make_docs.py); they are skipped if those files are missing.
 Quick mode writes to results_quick/ and runs_quick/ and starts clean.
 """
 import argparse
@@ -11,11 +11,11 @@ import importlib
 import shutil
 import time
 
-from src import baselines, final_eval, stress_test
+from src import agent, baselines, final_eval, stress_test
 from src.train import speed_test, train_one
 from src.utils import ROOT, RUN_NAMES, get_dirs, load_json, load_run, load_yaml
 
-STAGES = ["speed", "baselines", "train", "eval", "stress", "plots", "cards", "docs"]
+STAGES = ["speed", "baselines", "train", "eval", "stress", "decisions", "plots", "cards", "docs"]
 REPORT = {"plots": "plots", "cards": "plan_cards", "docs": "make_docs"}   # stage -> file in src/
 
 
@@ -65,7 +65,8 @@ def main():
         scale = load_json(saved)["timesteps_scale"] if saved.exists() else 1.0
 
     steps = {"baselines": lambda: baselines.run(quick), "train": lambda: train_all(quick, scale),
-             "eval": lambda: final_eval.run(quick), "stress": lambda: stress_test.run(quick)}
+             "eval": lambda: final_eval.run(quick), "stress": lambda: stress_test.run(quick),
+             "decisions": lambda: agent.run(quick)}
     steps.update({stage: (lambda stage=stage: report_stage(stage, quick)) for stage in REPORT})
     for stage in todo:
         if stage != "speed":

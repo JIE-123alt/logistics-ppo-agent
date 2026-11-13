@@ -6,7 +6,7 @@ If pip cannot install torch on your Python, use 3.12.
 **Run**
 python -m pytest -q          # checks the code works
 python -m src.train --run run_c_final --seed 0 --quick   # short smoke test, NOT final results
-python -m src.train --config config/run_c_final.yaml --seed 0           # full training run
+python -m src.train --run config/run_c_final.yaml --seed 0           # full training run
 tensorboard --logdir runs
 **Where the output goes**
 results/ CSV files
