@@ -6,10 +6,15 @@ __pycache__/
 # Big or private files
 data/raw/*.xlsx
 data/raw/*.csv
+data/processed/real_panel/
 runs/*
 !runs/.gitkeep
 runs_quick/
 results_quick/
+runs_real/
+runs_real_quick/
+results_real/
+results_real_quick/
 *.zip
 # Keep these folders in git
 !data/raw/.gitkeep
@@ -19,3 +24,4 @@ results_quick/
 Thumbs.db
 .vscode/*
 !.vscode/launch.json
+data/processed/online_retail_II_weekly.csv

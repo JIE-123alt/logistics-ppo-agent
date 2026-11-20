@@ -15,7 +15,9 @@ def make_scenario(seed, cfg):
     """Draw the demand pattern of one scenario. The same seed always gives the same pattern."""
     d = cfg["demand"]
     if d["source"] != "synthetic":
-        raise ValueError("Only synthetic demand is built so far (Stage 2 would add real demand).")
+        raise ValueError(
+            "SupplyChainEnv only accepts synthetic demand; use RealWindowEnv for real-demand evaluation."
+        )
     rng = np.random.default_rng(seed)
     base = rng.uniform(d["base_min"], d["base_max"])
     amp = rng.uniform(d["season_min"], d["season_max"])

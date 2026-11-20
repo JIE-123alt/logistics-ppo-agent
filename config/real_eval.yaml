@@ -1,0 +1,5 @@
+real:
+  panel_dir: data/processed/real_panel
+  calibration_weeks: 12
+  eval_stride: 13
+  test_repeats: 3
